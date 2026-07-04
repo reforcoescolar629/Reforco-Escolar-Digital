@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reforço Escolar Digital</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; margin:0; padding: 20px; }
+        .container { max-width: 700px; margin: auto; background:white; padding:30px; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2196F3; text-align: center; }
+        h3 { margin-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        input, select { width: 100%; padding: 14px; border: 2px solid #4da3ff; border-radius: 12px; font-size: 15px; box-sizing: border-box; margin-bottom: 15px; }
+        button { background: #2196F3; color: white; padding: 14px 20px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight:bold; width: 100%; }
+        .aula { background: #eef7ff; padding: 15px; border-radius: 10px; margin-top: 10px; }
+        .msg { margin-top: 10px; font-weight:bold; text-align:center; }
+        .msg.erro { color: red; }.msg.ok { color: green; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Reforço Escolar Digital</h1>
+    
+    <h3>1. Cadastrar Aluno</h3>
+    <input type="text" id="nome" placeholder="Nome Completo do Aluno">
+    <input type="text" id="turma" placeholder="Turma: Ex: 6°Ano">
+    <button onclick="cadastrarAluno()">Cadastrar Aluno</button>
+    <p id="msgAluno" class="msg"></p>
+
+    <hr>
+
+    <h3>2. Ver Aulas</h3>
+    <select id="anoSelect" onchange="buscarAulas()">
+        <option>Selecione o Ano</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+    </select>
+    <select id="materiaSelect" onchange="buscarAulas()">
+        <option>Selecione a Matéria</option>
+        <option>Matematica</option>
+        <option>Portugues</option>
+        <option>Ciencias</option>
+        <option>Historia</option>
+        <option>Geografia</option>
+        <option>Lingua Inglesa</option>
+        <option>Redacao</option>
+    </select>
+    <div id="listaAulas"></div>
+
+</div>
+
+<script>
+    // SUAS CHAVES DO SUPABASE
+    const SUPABASE_URL = 'https://djzsnolwdueiwkxucoge.supabase.co'
+    const SUPABASE_KEY = 'sb_publishable_vLeA_eLQvS968njQtVVn1Q_cJChtjYb'
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+    // FUNÇÃO PARA CADASTRAR ALUNO NA TABELA "Alunos"
+    async function cadastrarAluno() {
+        const nome = document.getElementById('nome').value
+        const turma = document.getElementById('turma').value
+        const msg = document.getElementById('msgAluno')
+        
+        if(!nome || !turma) {
+            msg.innerText = 'Preencha nome e turma'
+            msg.className = 'msg erro'
+            return
+        }
+
+        const { data, error } = await supabase.from('Alunos').insert([{ nome: nome, turma: turma }])
+        
+        if(error) {
+            msg.innerText = 'Erro: ' + error.message
+            msg.className = 'msg erro'
+        } else {
+            msg.innerText = 'Aluno cadastrado com sucesso! ✅'
+            msg.className = 'msg ok'
+            document.getElementById('nome').value = ''
+            document.getElementById('turma').value = ''
+        }
+    }
+
+    // FUNÇÃO PARA BUSCAR AULAS NA TABELA "Aulas"
+    async function buscarAulas() {
+        const ano = document.getElementById('anoSelect').value
+        const materia = document.getElementById('materiaSelect').value
+        const lista = document.getElementById('listaAulas')
+        
+        if(ano === 'Selecione o Ano' || materia === 'Selecione a Matéria') {
+            lista.innerHTML = ''
+            return
+        }
+
+        const { data, error } = await supabase.from('Aulas').select('*').eq('ano', ano).eq('materia', materia)
+        
+        if(error) {
+            lista.innerHTML = '<p class="msg erro">Erro ao buscar aulas</p>'
+            return
+        }
+        
+        let html = ''
+        if(data.length === 0) {
+            html = '<p>Nenhuma aula cadastrada para essa matéria e ano.</p>'
+        } else {
+            data.forEach(aula => {
+                html += `<div class="aula"><b>Aula:</b> ${aula.aula} <br><b>Conteúdo:</b> ${aula.conteudo}</div>`
+            })
+        }
+        lista.innerHTML = html
+    }
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reforço Escolar Digital</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; margin:0; padding: 20px; }
+        .container { max-width: 700px; margin: auto; background:white; padding:30px; border-radius:15px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2196F3; text-align: center; }
+        h3 { margin-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        input, select { width: 100%; padding: 14px; border: 2px solid #4da3ff; border-radius: 12px; font-size: 15px; box-sizing: border-box; margin-bottom: 15px; }
+        button { background: #2196F3; color: white; padding: 14px 20px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight:bold; width: 100%; }
+        .aula { background: #eef7ff; padding: 15px; border-radius: 10px; margin-top: 10px; }
+        .msg { margin-top: 10px; font-weight:bold; text-align:center; }
+        .msg.erro { color: red; }.msg.ok { color: green; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Reforço Escolar Digital</h1>
+    
+    <h3>1. Cadastrar Aluno</h3>
+    <input type="text" id="nome" placeholder="Nome Completo do Aluno">
+    <input type="text" id="turma" placeholder="Turma: Ex: 6°Ano">
+    <button onclick="cadastrarAluno()">Cadastrar Aluno</button>
+    <p id="msgAluno" class="msg"></p>
+
+    <hr>
+
+    <h3>2. Ver Aulas</h3>
+    <select id="anoSelect" onchange="buscarAulas()">
+        <option>Selecione o Ano</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+    </select>
+    <select id="materiaSelect" onchange="buscarAulas()">
+        <option>Selecione a Matéria</option>
+        <option>Matematica</option>
+        <option>Portugues</option>
+        <option>Ciencias</option>
+        <option>Historia</option>
+        <option>Geografia</option>
+        <option>Lingua Inglesa</option>
+        <option>Redacao</option>
+    </select>
+    <div id="listaAulas"></div>
+
+</div>
+
+<script>
+    // SUAS CHAVES DO SUPABASE
+    const SUPABASE_URL = 'https://djzsnolwdueiwkxucoge.supabase.co'
+    const SUPABASE_KEY = 'sb_publishable_vLeA_eLQvS968njQtVVn1Q_cJChtjYb'
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+    // FUNÇÃO PARA CADASTRAR ALUNO NA TABELA "Alunos"
+    async function cadastrarAluno() {
+        const nome = document.getElementById('nome').value
+        const turma = document.getElementById('turma').value
+        const msg = document.getElementById('msgAluno')
+        
+        if(!nome || !turma) {
+            msg.innerText = 'Preencha nome e turma'
+            msg.className = 'msg erro'
+            return
+        }
+
+        const { data, error } = await supabase.from('Alunos').insert([{ nome: nome, turma: turma }])
+        
+        if(error) {
+            msg.innerText = 'Erro: ' + error.message
+            msg.className = 'msg erro'
+        } else {
+            msg.innerText = 'Aluno cadastrado com sucesso! ✅'
+            msg.className = 'msg ok'
+            document.getElementById('nome').value = ''
+            document.getElementById('turma').value = ''
+        }
+    }
+
+    // FUNÇÃO PARA BUSCAR AULAS NA TABELA "Aulas"
+    async function buscarAulas() {
+        const ano = document.getElementById('anoSelect').value
+        const materia = document.getElementById('materiaSelect').value
+        const lista = document.getElementById('listaAulas')
+        
+        if(ano === 'Selecione o Ano' || materia === 'Selecione a Matéria') {
+            lista.innerHTML = ''
+            return
+        }
+
+        const { data, error } = await supabase.from('Aulas').select('*').eq('ano', ano).eq('materia', materia)
+        
+        if(error) {
+            lista.innerHTML = '<p class="msg erro">Erro ao buscar aulas</p>'
+            return
+        }
+        
+        let html = ''
+        if(data.length === 0) {
+            html = '<p>Nenhuma aula cadastrada para essa matéria e ano.</p>'
+        } else {
+            data.forEach(aula => {
+                html += `<div class="aula"><b>Aula:</b> ${aula.aula} <br><b>Conteúdo:</b> ${aula.conteudo}</div>`
+            })
+        }
+        lista.innerHTML = html
+    }
+</script>
+</body>
+</html>
